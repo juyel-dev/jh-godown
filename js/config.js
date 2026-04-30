@@ -13,14 +13,14 @@ const JH_CONFIG = {
   GAS_NOTIFY:  "https://script.google.com/macros/s/AKfycbz1mebV013C4jSglJR6AP7lmc9z_aFencG10a8iufAMpq9FsXsrXkWuPrcuMwjfNZYV/exec",
 
   // ─── Security Keys ───
-  NOTIFY_KEY:  "totka_secret_2025_bd",       // Must match GAS6 SECRET
-  ADMIN_PASS:  "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92", // SHA-256 of admin password
+  NOTIFY_KEY:  "totka_secret_2025_bd",
+  ADMIN_PASS:  "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
 
   // ─── Site Config ───
   SITE_URL:    "https://juyel-dev.github.io/jh-godown",
   APP_NAME:    "Jh Godown",
   APP_VERSION: "3.0.0",
-  CACHE_TTL:   5 * 60 * 1000, // 5 minutes in ms
+  CACHE_TTL:   5 * 60 * 1000,
 
   // ─── Feature Flags ───
   FEATURES: {
@@ -44,25 +44,26 @@ const JH_CONFIG = {
     CODE_HIGHLIGHT:  true,
   },
 
-  // ─── Engine Constants ───
+  // ─── Engine Constants (Exactly 86-char pool, no emoji) ───
   ENGINE: {
-    POOL: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\u09E6\u09E7\u09E8\u09E9\u09EA\u09EB\u09EC\u09ED\u09EE\u09EF!#$%&*+-./:;<=>?@^_`{|}~\u20B9",
-    START_UNICODE: 0xE000,
+    // 86 characters: A-Z(26) + a-z(26) + 0-9(10) + 24 symbols = 86
+    POOL: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&()*+,-./:;<=>?@[]^_",
+    START_UNICODE: 0xE000,    // Private Use Area (no emoji)
     CHUNK_BITS: 18,
     CHUNK_SIZE: 45000,
-    MASK: 262143, // (1 << 18) - 1
+    MASK: 262143,              // (1 << 18) - 1
   },
 
   // ─── Rate Limiting ───
   RATE_LIMIT: {
-    UPLOAD_COOLDOWN: 30 * 1000, // 30 seconds between uploads
+    UPLOAD_COOLDOWN: 30 * 1000,
     MAX_UPLOADS_PER_HOUR: 20,
   },
 
   // ─── TTL Config ───
   TTL: {
-    DEFAULT_HOURS: 168, // 7 days default
-    OPTIONS: [24, 72, 168, 720], // 1d, 3d, 7d, 30d
+    DEFAULT_HOURS: 168,
+    OPTIONS: [24, 72, 168, 720],
   },
 
   // ─── IndexedDB ───
@@ -78,15 +79,14 @@ const JH_CONFIG = {
   }
 };
 
-// Legacy alias for backward compatibility with GAS references
+// Legacy alias
 const TOTKA = JH_CONFIG;
 
-// ─── Utility: Generate QR Code URL ───
+// ─── Utility functions (unchanged, kept for compatibility) ───
 function getQRCodeURL(text) {
   return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
 }
 
-// ─── Utility: Format bytes ───
 function formatBytes(bytes) {
   if (bytes === 0) return "0 B";
   const k = 1024;
@@ -95,7 +95,6 @@ function formatBytes(bytes) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
 }
 
-// ─── Utility: Time ago ───
 function timeAgo(isoString) {
   const date = new Date(isoString);
   const now = new Date();
@@ -110,14 +109,12 @@ function timeAgo(isoString) {
   return Math.floor(days / 30) + "mo ago";
 }
 
-// ─── Utility: Sanitize HTML ───
 function sanitizeHTML(str) {
   const div = document.createElement("div");
   div.textContent = str;
   return div.innerHTML;
 }
 
-// ─── Utility: Copy to clipboard ───
 async function copyToClipboard(text) {
   try {
     await navigator.clipboard.writeText(text);
@@ -133,10 +130,8 @@ async function copyToClipboard(text) {
   }
 }
 
-// ─── IndexedDB Manager ───
 const DBManager = {
   db: null,
-
   async init() {
     if (!JH_CONFIG.FEATURES.INDEXEDDB_CACHE) return;
     if (this.db) return this.db;
@@ -157,7 +152,6 @@ const DBManager = {
       };
     });
   },
-
   async set(store, data) {
     await this.init();
     return new Promise((resolve, reject) => {
@@ -168,7 +162,6 @@ const DBManager = {
       req.onerror = () => reject(req.error);
     });
   },
-
   async get(store, key) {
     await this.init();
     return new Promise((resolve, reject) => {
@@ -179,7 +172,6 @@ const DBManager = {
       req.onerror = () => reject(req.error);
     });
   },
-
   async getAll(store) {
     await this.init();
     return new Promise((resolve, reject) => {
@@ -190,7 +182,6 @@ const DBManager = {
       req.onerror = () => reject(req.error);
     });
   },
-
   async delete(store, key) {
     await this.init();
     return new Promise((resolve, reject) => {
@@ -203,7 +194,6 @@ const DBManager = {
   }
 };
 
-// ─── Rate Limiter ───
 const RateLimiter = {
   checkUpload() {
     if (!JH_CONFIG.FEATURES.RATE_LIMITING) return true;
@@ -211,45 +201,33 @@ const RateLimiter = {
     const last = parseInt(localStorage.getItem("jh_last_upload") || "0");
     const count = parseInt(localStorage.getItem("jh_upload_count") || "0");
     const hourStart = parseInt(localStorage.getItem("jh_upload_hour") || "0");
-
     if (now - hourStart > 3600000) {
       localStorage.setItem("jh_upload_hour", now.toString());
       localStorage.setItem("jh_upload_count", "0");
       return true;
     }
-
-    if (count >= JH_CONFIG.RATE_LIMIT.MAX_UPLOADS_PER_HOUR) {
-      return false;
-    }
-
-    if (now - last < JH_CONFIG.RATE_LIMIT.UPLOAD_COOLDOWN) {
-      return false;
-    }
-
+    if (count >= JH_CONFIG.RATE_LIMIT.MAX_UPLOADS_PER_HOUR) return false;
+    if (now - last < JH_CONFIG.RATE_LIMIT.UPLOAD_COOLDOWN) return false;
     return true;
   },
-
   recordUpload() {
     const now = Date.now();
     localStorage.setItem("jh_last_upload", now.toString());
     const count = parseInt(localStorage.getItem("jh_upload_count") || "0");
     localStorage.setItem("jh_upload_count", (count + 1).toString());
   },
-
   getRemaining() {
     const count = parseInt(localStorage.getItem("jh_upload_count") || "0");
     return Math.max(0, JH_CONFIG.RATE_LIMIT.MAX_UPLOADS_PER_HOUR - count);
   }
 };
 
-// ─── Theme Manager ───
 const ThemeManager = {
   init() {
     if (!JH_CONFIG.FEATURES.THEME_TOGGLE) return;
     const saved = localStorage.getItem("jh_theme") || "auto";
     this.apply(saved);
   },
-
   apply(theme) {
     const root = document.documentElement;
     if (theme === "dark" || (theme === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
@@ -260,7 +238,6 @@ const ThemeManager = {
       root.classList.remove("dark");
     }
   },
-
   toggle() {
     const root = document.documentElement;
     const isDark = root.classList.contains("dark");
@@ -270,31 +247,26 @@ const ThemeManager = {
   }
 };
 
-// ─── Bookmark Manager ───
 const BookmarkManager = {
   async add(postId, data) {
     if (!JH_CONFIG.FEATURES.BOOKMARKS) return;
     await DBManager.init();
     await DBManager.set(JH_CONFIG.DB.STORES.BOOKMARKS, { postId, ...data, addedAt: Date.now() });
   },
-
   async remove(postId) {
     await DBManager.delete(JH_CONFIG.DB.STORES.BOOKMARKS, postId);
   },
-
   async getAll() {
     if (!JH_CONFIG.FEATURES.BOOKMARKS) return [];
     await DBManager.init();
     return DBManager.getAll(JH_CONFIG.DB.STORES.BOOKMARKS);
   },
-
   async has(postId) {
     const bm = await DBManager.get(JH_CONFIG.DB.STORES.BOOKMARKS, postId);
     return !!bm;
   }
 };
 
-// ─── Init on load ───
 document.addEventListener("DOMContentLoaded", () => {
   DBManager.init().catch(() => {});
   ThemeManager.init();
