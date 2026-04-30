@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Jh Godown</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <meta name="theme-color" content="#0d1117">
+</head>
+<body id="admin-page">
+  <!-- Header -->
+  <header class="jh-header">
+    <a href="index.html" class="jh-header-logo">JH GODOWN</a>
+    <div class="jh-header-actions">
+      <button class="jh-theme-toggle" onclick="ThemeManager.toggle()" title="Toggle theme"><i data-lucide="sun-moon"></i></button>
+      <button class="jh-btn-icon" onclick="AdminPanel.logout()" title="Logout"><i data-lucide="log-out"></i></button>
+    </div>
+  </header>
+
+  <main class="jh-page">
+    <div class="jh-container">
+      <!-- Login Section -->
+      <div class="jh-admin-login" id="admin-login">
+        <i data-lucide="shield" style="width:48px;height:48px;color:var(--accent-blue)"></i>
+        <h2>ADMIN PANEL</h2>
+        <input type="password" id="admin-password" class="jh-input" placeholder="Enter admin password" style="max-width:300px">
+        <button class="jh-btn jh-btn-primary jh-btn-lg" id="btn-admin-login" style="max-width:300px;width:100%">
+          <i data-lucide="lock"></i> Login
+        </button>
+        <a href="index.html" style="font-size:0.85rem"><i data-lucide="arrow-left"></i> Back to Home</a>
+      </div>
+
+      <!-- Dashboard -->
+      <div id="admin-dashboard" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <h1><i data-lucide="shield"></i> Admin Panel</h1>
+          <div style="display:flex;gap:8px">
+            <button class="jh-btn jh-btn-secondary jh-btn-sm" id="btn-admin-refresh"><i data-lucide="refresh-cw"></i> Refresh</button>
+            <button class="jh-btn jh-btn-danger jh-btn-sm" id="btn-admin-logout"><i data-lucide="log-out"></i> Logout</button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="jh-admin-section">
+          <h3><i data-lucide="bar-chart-2"></i> Statistics</h3>
+          <div id="admin-stats"><div class="jh-skeleton" style="height:80px"></div></div>
+        </div>
+
+        <!-- Storage -->
+        <div class="jh-admin-section">
+          <h3><i data-lucide="database"></i> Storage Sheets</h3>
+          <div id="admin-storage"><div class="jh-skeleton" style="height:80px"></div></div>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--glass-border)">
+            <h4 style="font-size:0.85rem;margin-bottom:10px">Add New Storage</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <input type="text" id="storage-sheet-id" class="jh-input" placeholder="Sheet ID (e.g. sh_003)">
+              <input type="text" id="storage-spreadsheet-id" class="jh-input" placeholder="Spreadsheet ID">
+            </div>
+            <input type="text" id="storage-sheet-name" class="jh-input" placeholder="Tab name (default: chunks)" style="margin-top:8px">
+            <button class="jh-btn jh-btn-success jh-btn-sm" id="btn-add-storage" style="margin-top:8px">
+              <i data-lucide="plus"></i> Add Storage Sheet
+            </button>
+          </div>
+        </div>
+
+        <!-- Recent Posts -->
+        <div class="jh-admin-section">
+          <h3><i data-lucide="file-text"></i> Recent Posts</h3>
+          <div id="admin-posts"><div class="jh-skeleton" style="height:100px"></div></div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="jh-admin-section">
+          <h3><i data-lucide="users"></i> Recent Users</h3>
+          <div id="admin-users"><div class="jh-skeleton" style="height:100px"></div></div>
+        </div>
+
+        <!-- Broadcast -->
+        <div class="jh-admin-section">
+          <h3><i data-lucide="send"></i> Broadcast Message</h3>
+          <textarea id="broadcast-message" class="jh-textarea" placeholder="Type a message to broadcast..." rows="3"></textarea>
+          <button class="jh-btn jh-btn-primary jh-btn-sm" id="btn-broadcast" style="margin-top:8px">
+            <i data-lucide="radio"></i> Send Broadcast
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/notify.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/image.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/feed.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => lucide.createIcons());
+  </script>
+</body>
+</html>

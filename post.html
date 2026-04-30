@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Post — Jh Godown</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <meta name="theme-color" content="#0d1117">
+</head>
+<body>
+  <!-- Header -->
+  <header class="jh-header">
+    <a href="index.html" class="jh-header-logo">JH GODOWN</a>
+    <div class="jh-header-actions">
+      <button class="jh-theme-toggle" onclick="ThemeManager.toggle()" title="Toggle theme"><i data-lucide="sun-moon"></i></button>
+      <button class="jh-btn-icon" onclick="history.back()" title="Go back"><i data-lucide="arrow-left"></i></button>
+    </div>
+  </header>
+
+  <main class="jh-page">
+    <div class="jh-container">
+      <div id="post-view">
+        <div class="jh-skeleton" style="height:300px"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="jh-bottom-nav">
+    <a href="index.html" class="jh-nav-item"><i data-lucide="home"></i><span>Home</span></a>
+    <a href="encode.html" class="jh-nav-item"><i data-lucide="upload-cloud"></i><span>Encode</span></a>
+    <a href="decode.html" class="jh-nav-item"><i data-lucide="download-cloud"></i><span>Decode</span></a>
+    <a href="profile.html" class="jh-nav-item"><i data-lucide="user"></i><span>Profile</span></a>
+  </nav>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/image.js"></script>
+  <script src="js/share.js"></script>
+  <script>
+    async function loadPost() {
+      const params = new URLSearchParams(location.search);
+      const postId = params.get("id");
+      const container = document.getElementById("post-view");
+
+      if (!postId) {
+        container.innerHTML = `<div class="jh-empty-state"><i data-lucide="alert-circle"></i><p>No post ID provided</p></div>`;
+        lucide.createIcons();
+        return;
+      }
+
+      try {
+        const post = await API.getPostMeta(postId);
+        if (post.error) {
+          container.innerHTML = `<div class="jh-empty-state"><i data-lucide="alert-circle"></i><p>Post not found</p></div>`;
+          lucide.createIcons();
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="jh-post-view jh-fade-in">
+            <div class="jh-card-header" style="margin-bottom:16px">
+              <a href="profile.html?id=${post.userId}" class="jh-card-user">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='%2358a6ff'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 20c0-4 4-6 8-6s8 2 8 6'/%3E%3C/svg%3E" class="jh-card-avatar" style="width:40px;height:40px"/>
+                <div>
+                  <span class="jh-card-username">@${sanitizeHTML(post.username)}</span>
+                  <span class="jh-card-time">${timeAgo(post.timestamp)}</span>
+                </div>
+              </a>
+            </div>
+            <h1>${sanitizeHTML(post.title)}</h1>
+            ${post.tags ? `<div class="jh-card-tags">${post.tags.split(",").map(t => `<span class="jh-tag">#${sanitizeHTML(t.trim())}</span>`).join("")}</div>` : ""}
+            ${post.description ? `<p style="color:var(--text-secondary);margin:12px 0">${sanitizeHTML(post.description)}</p>` : ""}
+            ${post.nsfw ? `<div class="jh-card" style="background:rgba(218,54,51,0.1);border-color:var(--accent-red);margin:12px 0"><p>🔞 This post is marked as NSFW</p></div>` : ""}
+            <div class="jh-stats-grid" style="margin:16px 0">
+              <div class="jh-stat"><span>Original Size</span><strong>${sanitizeHTML(post.originalSize || "?")}</strong></div>
+              <div class="jh-stat"><span>Encoded</span><strong>${Number(post.encodedLen || 0).toLocaleString()} chars</strong></div>
+              <div class="jh-stat"><span>Chunks</span><strong>${post.totalChunks || "?"}</strong></div>
+              <div class="jh-stat"><span>Post ID</span><strong><code>${post.postId}</code></strong></div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px">
+              <a href="decode.html?id=${post.postId}" class="jh-btn jh-btn-primary jh-btn-lg" style="flex:1;min-width:140px">
+                <i data-lucide="unlock"></i> Decode & Download
+              </a>
+              <button class="jh-btn jh-btn-secondary" onclick="Share.copyPostId('${post.postId}')">
+                <i data-lucide="copy"></i> Copy ID
+              </button>
+              <button class="jh-btn jh-btn-secondary" onclick="Share.share({title:'${sanitizeHTML(post.title)}',postId:'${post.postId}'})">
+                <i data-lucide="share-2"></i> Share
+              </button>
+            </div>
+            ${JH_CONFIG.FEATURES.QR_CODE_SHARE ? `
+            <div class="jh-qr-wrap" style="margin-top:20px">
+              <img src="${getQRCodeURL(Share.getUrl('post', post.postId))}" alt="QR Code" class="jh-qr-img"/>
+              <p>Scan to open this post</p>
+            </div>` : ""}
+          </div>
+        `;
+        lucide.createIcons();
+      } catch (err) {
+        container.innerHTML = `<div class="jh-empty-state jh-error"><i data-lucide="alert-circle"></i><p>Failed to load post</p></div>`;
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      loadPost();
+    });
+  </script>
+</body>
+</html>

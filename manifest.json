@@ -1,0 +1,29 @@
+{
+  "name": "Jh Godown",
+  "short_name": "JhGodown",
+  "description": "Encode any file into compact Unicode text. Share files via text posts.",
+  "start_url": "/jh-godown/index.html",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 24 24'%3E%3Crect fill='%2358a6ff' width='24' height='24' rx='4'/%3E%3Cpath fill='white' d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 24 24'%3E%3Crect fill='%2358a6ff' width='24' height='24' rx='4'/%3E%3Cpath fill='white' d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["utilities", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
+  "scope": "/jh-godown/",
+  "screenshots": [],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

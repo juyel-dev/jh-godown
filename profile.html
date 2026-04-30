@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile — Jh Godown</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <meta name="theme-color" content="#0d1117">
+</head>
+<body id="profile-page">
+  <!-- Header -->
+  <header class="jh-header">
+    <a href="index.html" class="jh-header-logo">JH GODOWN</a>
+    <div class="jh-header-actions">
+      <button class="jh-theme-toggle" onclick="ThemeManager.toggle()" title="Toggle theme"><i data-lucide="sun-moon"></i></button>
+      <a href="login.html" class="jh-btn jh-btn-primary jh-btn-sm" data-auth-login><i data-lucide="log-in"></i> Login</a>
+      <button class="jh-btn-icon" onclick="Auth.logout()" data-auth-logout style="display:none"><i data-lucide="log-out"></i></button>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="jh-sidebar">
+    <a href="index.html" class="jh-sidebar-link"><i data-lucide="home"></i> Home</a>
+    <a href="encode.html" class="jh-sidebar-link"><i data-lucide="upload-cloud"></i> Encode</a>
+    <a href="decode.html" class="jh-sidebar-link"><i data-lucide="download-cloud"></i> Decode</a>
+    <a href="profile.html" class="jh-sidebar-link active"><i data-lucide="user"></i> Profile</a>
+  </nav>
+
+  <!-- Main -->
+  <main class="jh-page jh-main-with-sidebar">
+    <div class="jh-container">
+      <!-- Profile Header -->
+      <div id="profile-container"></div>
+
+      <!-- Analytics (own profile only) -->
+      <div id="analytics-section" style="display:none" data-auth-show></div>
+
+      <!-- User Posts -->
+      <h3 class="jh-section-title"><i data-lucide="file-text"></i> Posts</h3>
+      <div id="user-posts"></div>
+
+      <!-- Bookmarks -->
+      <div data-auth-show>
+        <h3 class="jh-section-title"><i data-lucide="bookmark"></i> Bookmarks</h3>
+        <div id="bookmarks-list">
+          <div class="jh-empty-state"><i data-lucide="bookmark"></i><p>No bookmarks yet</p></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="jh-bottom-nav">
+    <a href="index.html" class="jh-nav-item"><i data-lucide="home"></i><span>Home</span></a>
+    <a href="encode.html" class="jh-nav-item"><i data-lucide="upload-cloud"></i><span>Encode</span></a>
+    <a href="decode.html" class="jh-nav-item"><i data-lucide="download-cloud"></i><span>Decode</span></a>
+    <a href="profile.html" class="jh-nav-item active"><i data-lucide="user"></i><span>Profile</span></a>
+  </nav>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/notify.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/image.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/feed.js"></script>
+  <script src="js/profile.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      Auth.updateUI();
+      // Show analytics section for logged in users
+      if (Auth.isLoggedIn()) {
+        document.querySelectorAll("[data-auth-show]").forEach(el => el.style.display = "");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jh Godown — File Encoding & Sharing</title>
+  <meta name="description" content="Encode any file into compact Unicode text. Share files via text posts. Free, serverless file sharing.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d1117">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 24 24'%3E%3Crect fill='%2358a6ff' width='24' height='24' rx='4'/%3E%3Cpath fill='white' d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E">
+</head>
+<body>
+  <!-- Header -->
+  <header class="jh-header">
+    <a href="index.html" class="jh-header-logo">JH GODOWN</a>
+    <div class="jh-search-bar">
+      <i data-lucide="search"></i>
+      <input type="text" placeholder="Search posts..." id="search-input" onkeydown="if(event.key==='Enter')Feed.search(this.value)">
+    </div>
+    <div class="jh-header-actions">
+      <button class="jh-theme-toggle" onclick="ThemeManager.toggle()" title="Toggle theme">
+        <i data-lucide="sun-moon"></i>
+      </button>
+      <a href="login.html" class="jh-btn jh-btn-primary jh-btn-sm" data-auth-login>
+        <i data-lucide="log-in"></i> Login
+      </a>
+      <button class="jh-btn-icon" onclick="Auth.logout()" data-auth-logout style="display:none">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar (desktop) -->
+  <nav class="jh-sidebar">
+    <a href="index.html" class="jh-sidebar-link active">
+      <i data-lucide="home"></i> Home
+    </a>
+    <a href="encode.html" class="jh-sidebar-link">
+      <i data-lucide="upload-cloud"></i> Encode
+    </a>
+    <a href="decode.html" class="jh-sidebar-link">
+      <i data-lucide="download-cloud"></i> Decode
+    </a>
+    <a href="profile.html" class="jh-sidebar-link">
+      <i data-lucide="user"></i> Profile
+    </a>
+    <a href="admin.html" class="jh-sidebar-link">
+      <i data-lucide="shield"></i> Admin
+    </a>
+    <a href="about.html" class="jh-sidebar-link">
+      <i data-lucide="info"></i> About
+    </a>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="jh-page jh-main-with-sidebar">
+    <div class="jh-container">
+      <!-- Tag Pills -->
+      <div class="jh-tag-pills" id="tag-pills">
+        <button class="jh-tag-pill jh-tag-active" data-tag="" onclick="Feed.filterByTag('')">All</button>
+        <button class="jh-tag-pill" data-tag="photo" onclick="Feed.filterByTag('photo')">#photo</button>
+        <button class="jh-tag-pill" data-tag="video" onclick="Feed.filterByTag('video')">#video</button>
+        <button class="jh-tag-pill" data-tag="pdf" onclick="Feed.filterByTag('pdf')">#pdf</button>
+        <button class="jh-tag-pill" data-tag="zip" onclick="Feed.filterByTag('zip')">#zip</button>
+        <button class="jh-tag-pill" data-tag="game" onclick="Feed.filterByTag('game')">#game</button>
+      </div>
+
+      <!-- Sort & View -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="display:flex;gap:8px">
+          <button class="jh-btn jh-btn-sm jh-btn-secondary" onclick="Feed.setSort('newest')">Newest</button>
+          <button class="jh-btn jh-btn-sm jh-btn-secondary" onclick="Feed.setSort('oldest')">Oldest</button>
+          <button class="jh-btn jh-btn-sm jh-btn-secondary" onclick="Feed.setSort('az')">A-Z</button>
+        </div>
+        <button class="jh-btn-icon" onclick="Feed.toggleView()" title="Toggle view">
+          <i data-lucide="layout-grid"></i>
+        </button>
+      </div>
+
+      <!-- Feed Container -->
+      <div class="jh-feed-grid" id="feed-container">
+        <div class="jh-skeleton" style="height:200px"></div>
+        <div class="jh-skeleton" style="height:200px"></div>
+        <div class="jh-skeleton" style="height:200px"></div>
+      </div>
+
+      <!-- Loading indicator -->
+      <div id="feed-loading" style="text-align:center;padding:20px;display:none">
+        <div class="jh-skeleton" style="height:40px;width:120px;margin:0 auto"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav (mobile) -->
+  <nav class="jh-bottom-nav">
+    <a href="index.html" class="jh-nav-item active">
+      <i data-lucide="home"></i>
+      <span>Home</span>
+    </a>
+    <a href="encode.html" class="jh-nav-item">
+      <i data-lucide="upload-cloud"></i>
+      <span>Encode</span>
+    </a>
+    <a href="decode.html" class="jh-nav-item">
+      <i data-lucide="download-cloud"></i>
+      <span>Decode</span>
+    </a>
+    <a href="profile.html" class="jh-nav-item">
+      <i data-lucide="user"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/notify.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/image.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/feed.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      Auth.updateUI();
+      Feed.init("feed-container");
+      Share.handleDeepLink();
+    });
+  </script>
+</body>
+</html>

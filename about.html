@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Jh Godown</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <meta name="theme-color" content="#0d1117">
+</head>
+<body>
+  <!-- Header -->
+  <header class="jh-header">
+    <a href="index.html" class="jh-header-logo">JH GODOWN</a>
+    <div class="jh-header-actions">
+      <button class="jh-theme-toggle" onclick="ThemeManager.toggle()" title="Toggle theme"><i data-lucide="sun-moon"></i></button>
+      <a href="index.html" class="jh-btn jh-btn-secondary jh-btn-sm"><i data-lucide="home"></i> Home</a>
+    </div>
+  </header>
+
+  <main class="jh-page">
+    <div class="jh-legal-page">
+      <h1>About Jh Godown</h1>
+
+      <p><strong>Jh Godown</strong> is a free, serverless file encoding and sharing platform. It transforms any file into compact Unicode text that can be stored, shared, and decoded back to the original file.</p>
+
+      <h2>How It Works</h2>
+      <p>Our custom 18-bit encoding engine compresses your files using zlib compression, then encodes the binary data into a string of Unicode characters. This text can be:</p>
+      <ul style="margin-left:20px;color:var(--text-secondary);font-size:0.9rem">
+        <li>Copied and pasted anywhere</li>
+        <li>Stored in Google Sheets (up to 500,000 rows per sheet)</li>
+        <li>Shared via a simple Post ID</li>
+        <li>Decoded back to the exact original file</li>
+      </ul>
+
+      <h2>Technology Stack</h2>
+      <p>Built entirely on free-tier services with zero hosting costs:</p>
+      <ul style="margin-left:20px;color:var(--text-secondary);font-size:0.9rem">
+        <li><strong>Frontend:</strong> Pure HTML/CSS/JS hosted on GitHub Pages</li>
+        <li><strong>Backend:</strong> 6 Google Apps Script Web Apps</li>
+        <li><strong>Database:</strong> Google Sheets (registry + storage)</li>
+        <li><strong>Compression:</strong> pako.js (zlib port)</li>
+        <li><strong>Security:</strong> SHA-256 hashing, client-side sessions</li>
+        <li><strong>Notifications:</strong> Telegram Bot API</li>
+      </ul>
+
+      <h2>Features</h2>
+      <ul style="margin-left:20px;color:var(--text-secondary);font-size:0.9rem">
+        <li>Encode any file format to compact Unicode text</li>
+        <li>Web Worker background processing (no UI freeze)</li>
+        <li>Offline encoding support</li>
+        <li>Social feed with infinite scroll</li>
+        <li>User profiles with analytics</li>
+        <li>Bookmark and organize posts</li>
+        <li>Dark/Light theme toggle</li>
+        <li>QR code sharing</li>
+        <li>PWA support (install on mobile)</li>
+        <li>Rate limiting and spam protection</li>
+      </ul>
+
+      <h2>Version</h2>
+      <p style="color:var(--text-secondary)">Jh Godown v3.0.0 — Enhanced Edition</p>
+
+      <div style="margin-top:32px;text-align:center">
+        <a href="index.html" class="jh-btn jh-btn-primary"><i data-lucide="home"></i> Back to Home</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="js/config.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", () => lucide.createIcons());</script>
+</body>
+</html>

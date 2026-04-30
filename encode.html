@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encode File — Jh Godown</title>
+  <meta name="description" content="Encode any file into compact Unicode text. Works offline too.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d1117">
+</head>
+<body id="encode-page">
+  <!-- Header -->
+  <header class="jh-header">
+    <a href="index.html" class="jh-header-logo">JH GODOWN</a>
+    <div class="jh-header-actions">
+      <button class="jh-theme-toggle" onclick="ThemeManager.toggle()" title="Toggle theme">
+        <i data-lucide="sun-moon"></i>
+      </button>
+      <a href="login.html" class="jh-btn jh-btn-primary jh-btn-sm" data-auth-login>
+        <i data-lucide="log-in"></i> Login
+      </a>
+      <button class="jh-btn-icon" onclick="Auth.logout()" data-auth-logout style="display:none">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="jh-sidebar">
+    <a href="index.html" class="jh-sidebar-link"><i data-lucide="home"></i> Home</a>
+    <a href="encode.html" class="jh-sidebar-link active"><i data-lucide="upload-cloud"></i> Encode</a>
+    <a href="decode.html" class="jh-sidebar-link"><i data-lucide="download-cloud"></i> Decode</a>
+    <a href="profile.html" class="jh-sidebar-link"><i data-lucide="user"></i> Profile</a>
+  </nav>
+
+  <!-- Main -->
+  <main class="jh-page jh-main-with-sidebar">
+    <div class="jh-container">
+      <h1 style="margin-bottom:4px"><i data-lucide="upload-cloud"></i> Encode File</h1>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:20px">Transform any file into compact Unicode text</p>
+
+      <!-- Rate Limit -->
+      <div class="jh-rate-limit" id="rate-limit-info"></div>
+
+      <!-- Drop Zone -->
+      <div class="jh-drop-zone" id="drop-zone" onclick="document.getElementById('encode-files').click()">
+        <i data-lucide="file-plus"></i>
+        <p><strong>Drag & drop files here</strong></p>
+        <p style="font-size:0.8rem">or click to browse</p>
+        <p style="font-size:0.75rem;margin-top:8px">Supports any format, any size</p>
+        <input type="file" id="encode-files" multiple style="display:none" accept="*/*">
+      </div>
+
+      <!-- File List -->
+      <div id="file-list"></div>
+
+      <!-- Progress -->
+      <div id="encode-progress"></div>
+
+      <!-- Encode Button -->
+      <div style="display:flex;gap:10px;margin:16px 0">
+        <button class="jh-btn jh-btn-primary jh-btn-lg jh-disabled" id="btn-encode" style="flex:1">
+          <i data-lucide="play"></i> Start Encoding
+        </button>
+        <button class="jh-btn jh-btn-secondary" id="btn-clear">
+          <i data-lucide="trash-2"></i> Clear
+        </button>
+      </div>
+
+      <!-- Encoded Output -->
+      <div id="encoded-output" class="jh-hidden">
+        <div class="jh-card">
+          <h3><i data-lucide="check-circle"></i> Encoding Complete</h3>
+          <div id="encode-stats"></div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="jh-btn jh-btn-primary jh-btn-sm" id="btn-copy-encoded">
+              <i data-lucide="copy"></i> Copy Text
+            </button>
+            <button class="jh-btn jh-btn-secondary jh-btn-sm" id="btn-download-encoded">
+              <i data-lucide="download"></i> Download .txt
+            </button>
+          </div>
+          <div class="jh-card" style="margin-top:12px;padding:12px;background:var(--bg-primary)">
+            <pre id="encoded-preview" style="font-size:0.75rem;overflow-x:auto;max-height:200px;color:var(--text-muted)"></pre>
+          </div>
+        </div>
+
+        <!-- Save Section (if logged in) -->
+        <div id="save-section" class="jh-card jh-hidden" style="margin-top:16px">
+          <h3><i data-lucide="save"></i> Save as Post</h3>
+          <div class="jh-form-group">
+            <label>Title *</label>
+            <input type="text" id="post-title" class="jh-input" placeholder="Give your file a name" maxlength="100">
+          </div>
+          <div class="jh-form-group">
+            <label>Tags (comma separated)</label>
+            <input type="text" id="post-tags" class="jh-input" placeholder="photo, zip, document">
+          </div>
+          <div class="jh-form-group">
+            <label>Description</label>
+            <textarea id="post-description" class="jh-textarea" placeholder="Optional description..." maxlength="500"></textarea>
+          </div>
+          <div class="jh-form-group">
+            <label style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="post-nsfw" style="width:auto">
+              Mark as NSFW (18+)
+            </label>
+          </div>
+          <button class="jh-btn jh-btn-success jh-btn-lg" id="btn-save" style="width:100%">
+            <i data-lucide="cloud-upload"></i> Save to Cloud & Share
+          </button>
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;text-align:center">
+            Requires login. Your encoded file will be stored across multiple Google Sheets.
+          </p>
+        </div>
+      </div>
+
+      <!-- Offline Mode Note -->
+      <div class="jh-card" style="margin-top:20px;background:rgba(137,87,229,0.05);border-color:rgba(137,87,229,0.2)">
+        <h4 style="display:flex;align-items:center;gap:8px;color:var(--accent-purple)">
+          <i data-lucide="wifi-off"></i> Offline Mode Available
+        </h4>
+        <p style="font-size:0.85rem;color:var(--text-muted)">
+          Encoding works without internet! The conversion happens entirely in your browser.
+          Just encode, copy the text, and save it anywhere. Decode later with the same tool.
+        </p>
+      </div>
+
+      <!-- P2P Transfer -->
+      <div class="jh-p2p-section" id="p2p-section" style="display:none">
+        <h3><i data-lucide="radio"></i> P2P Direct Transfer</h3>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px">
+          Send files directly to another device without uploading to the cloud.
+        </p>
+        <div style="display:flex;gap:10px">
+          <button class="jh-btn jh-btn-primary" onclick="alert('P2P: Generate room code and share with recipient')">
+            <i data-lucide="plus"></i> Create Room
+          </button>
+          <button class="jh-btn jh-btn-secondary">
+            <i data-lucide="log-in"></i> Join Room
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="jh-bottom-nav">
+    <a href="index.html" class="jh-nav-item"><i data-lucide="home"></i><span>Home</span></a>
+    <a href="encode.html" class="jh-nav-item active"><i data-lucide="upload-cloud"></i><span>Encode</span></a>
+    <a href="decode.html" class="jh-nav-item"><i data-lucide="download-cloud"></i><span>Decode</span></a>
+    <a href="profile.html" class="jh-nav-item"><i data-lucide="user"></i><span>Profile</span></a>
+  </nav>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/notify.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/image.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/feed.js"></script>
+  <script src="js/encode.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      Auth.updateUI();
+    });
+  </script>
+</body>
+</html>

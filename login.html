@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Jh Godown</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <meta name="theme-color" content="#0d1117">
+</head>
+<body id="login-page">
+  <div class="jh-auth-page">
+    <div class="jh-auth-card">
+      <div class="jh-auth-logo">
+        <h1>JH GODOWN</h1>
+        <p>Login to save & share your encoded files</p>
+      </div>
+
+      <div class="jh-auth-tabs">
+        <button class="jh-auth-tab active" onclick="LoginPage.showTab('login')">Login</button>
+        <button class="jh-auth-tab" onclick="LoginPage.showTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- Login Form -->
+      <div class="jh-auth-form active" id="tab-login">
+        <div class="jh-form-group">
+          <label>Username or Login ID</label>
+          <input type="text" id="login-id" class="jh-input" placeholder="Enter username or email">
+        </div>
+        <div class="jh-form-group">
+          <label>Password</label>
+          <input type="password" id="login-password" class="jh-input" placeholder="Enter password">
+        </div>
+        <button class="jh-btn jh-btn-primary jh-btn-lg" style="width:100%" onclick="LoginPage.login()">
+          <i data-lucide="log-in"></i> Login
+        </button>
+      </div>
+
+      <!-- Signup Form -->
+      <div class="jh-auth-form" id="tab-signup">
+        <div class="jh-form-group">
+          <label>Username *</label>
+          <input type="text" id="signup-username" class="jh-input" placeholder="Choose a username (3-20 chars)" maxlength="20">
+        </div>
+        <div class="jh-form-group">
+          <label>Login ID (Email/Phone) *</label>
+          <input type="text" id="signup-loginid" class="jh-input" placeholder="Email or phone number">
+        </div>
+        <div class="jh-form-group">
+          <label>Display Name</label>
+          <input type="text" id="signup-name" class="jh-input" placeholder="Your name">
+        </div>
+        <div class="jh-form-group">
+          <label>Password *</label>
+          <input type="password" id="signup-password" class="jh-input" placeholder="Choose a password">
+        </div>
+        <div class="jh-form-group">
+          <label>Bio (optional, max 150)</label>
+          <textarea id="signup-bio" class="jh-textarea" placeholder="Tell us about yourself..." maxlength="150" rows="2"></textarea>
+        </div>
+        <div class="jh-form-group">
+          <label>Profession (optional)</label>
+          <input type="text" id="signup-profession" class="jh-input" placeholder="e.g. Developer, Designer">
+        </div>
+        <button class="jh-btn jh-btn-success jh-btn-lg" style="width:100%" onclick="LoginPage.signup()">
+          <i data-lucide="user-plus"></i> Create Account
+        </button>
+      </div>
+
+      <div style="text-align:center;margin-top:16px">
+        <a href="index.html" style="font-size:0.85rem"><i data-lucide="arrow-left"></i> Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/notify.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+  <script src="js/engine.js"></script>
+  <script>
+    const LoginPage = {
+      showTab(tab) {
+        document.querySelectorAll(".jh-auth-tab").forEach(t => t.classList.toggle("active", t.textContent.toLowerCase().includes(tab)));
+        document.querySelectorAll(".jh-auth-form").forEach(f => f.classList.remove("active"));
+        document.getElementById("tab-" + tab).classList.add("active");
+      },
+
+      async login() {
+        const loginId = document.getElementById("login-id").value.trim();
+        const password = document.getElementById("login-password").value;
+        if (!loginId || !password) {
+          Swal.fire({ icon: "warning", title: "Fill all fields", background: "var(--bg-secondary)", color: "var(--text-primary)" });
+          return;
+        }
+        try {
+          Swal.fire({ title: "Logging in...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          const resp = await Auth.login(loginId, password);
+          Swal.close();
+          if (resp.success) {
+            const params = new URLSearchParams(location.search);
+            const redirect = params.get("redirect") || "index.html";
+            location.href = redirect;
+          } else {
+            Swal.fire({ icon: "error", title: "Login failed", text: resp.error || "Invalid credentials", background: "var(--bg-secondary)", color: "var(--text-primary)" });
+          }
+        } catch (err) {
+          Swal.fire({ icon: "error", title: "Error", text: err.message, background: "var(--bg-secondary)", color: "var(--text-primary)" });
+        }
+      },
+
+      async signup() {
+        const username = document.getElementById("signup-username").value.trim();
+        const loginId = document.getElementById("signup-loginid").value.trim();
+        const name = document.getElementById("signup-name").value.trim();
+        const password = document.getElementById("signup-password").value;
+        const bio = document.getElementById("signup-bio").value.trim();
+        const profession = document.getElementById("signup-profession").value.trim();
+
+        if (!username || !loginId || !password) {
+          Swal.fire({ icon: "warning", title: "Fill required fields", background: "var(--bg-secondary)", color: "var(--text-primary)" });
+          return;
+        }
+        if (username.length < 3) {
+          Swal.fire({ icon: "warning", title: "Username too short", text: "Minimum 3 characters", background: "var(--bg-secondary)", color: "var(--text-primary)" });
+          return;
+        }
+
+        try {
+          Swal.fire({ title: "Creating account...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          const resp = await Auth.signup({ username, loginId, name, password, bio, profession });
+          Swal.close();
+          if (resp.success) {
+            Swal.fire({
+              icon: "success", title: "Welcome!", text: "Your account has been created.",
+              background: "var(--bg-secondary)", color: "var(--text-primary)",
+              timer: 2000, showConfirmButton: false,
+            }).then(() => {
+              const params = new URLSearchParams(location.search);
+              const redirect = params.get("redirect") || "index.html";
+              location.href = redirect;
+            });
+          } else {
+            Swal.fire({ icon: "error", title: "Signup failed", text: resp.error || "Try again", background: "var(--bg-secondary)", color: "var(--text-primary)" });
+          }
+        } catch (err) {
+          Swal.fire({ icon: "error", title: "Error", text: err.message, background: "var(--bg-secondary)", color: "var(--text-primary)" });
+        }
+      }
+    };
+    document.addEventListener("DOMContentLoaded", () => lucide.createIcons());
+  </script>
+</body>
+</html>
