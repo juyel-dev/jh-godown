@@ -50,7 +50,7 @@ const JH_CONFIG = {
     POOL: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&()*+,-./:;<=>?@[]^_",
     START_UNICODE: 0xE000,    // Private Use Area (no emoji)
     CHUNK_BITS: 18,
-    CHUNK_SIZE: 10000,
+    CHUNK_SIZE: 45000,
     MASK: 262143,              // (1 << 18) - 1
   },
 
