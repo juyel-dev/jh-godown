@@ -91,8 +91,9 @@ const DecodePage = {
       Analytics.track("download", { postId: id, size: decoded.length });
 
     } catch (err) {
-      this.prog.error(err.message);
-      console.error("Decode error:", err);
+      // err.message যদি না থাকে, তবে সরাসরি err প্রিন্ট করবে
+      this.prog.error("Invalid encoded text: " + (err.message || err));
+      console.error("Decode error details:", err);
     }
   },
 
@@ -119,7 +120,9 @@ const DecodePage = {
       this.showResult(decoded, { encodedLen: text.length, title: "Pasted text" });
 
     } catch (err) {
-      this.prog.error("Invalid encoded text: " + err.message);
+      // err.message যদি না থাকে, তবে সরাসরি err প্রিন্ট করবে
+      this.prog.error("Invalid encoded text: " + (err.message || err));
+      console.error("Decode error details:", err);
     }
   },
 
